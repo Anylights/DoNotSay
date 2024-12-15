@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -6,7 +7,8 @@ public class NPCManager : MonoBehaviour
 {
     [Header("Dialogue Settings")]
     public TextMeshProUGUI dialogueText; // TextMeshPro文本框
-    public string[] dialogueLines;       // NPC的对话内容
+    public List<DialogueLine> dialogueLines; // 每段对话及其绑定的碰撞体
+
     public float timeBetweenLines = 2f;  // 每段对话的显示时间
 
     [Header("Raycast Settings")]
@@ -61,7 +63,7 @@ public class NPCManager : MonoBehaviour
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.F) && !isDialoguePlaying)
         {
-            if (currentLine < dialogueLines.Length)
+            if (currentLine < dialogueLines.Count)
             {
                 StartCoroutine(DisplayDialogue());
             }
@@ -71,12 +73,15 @@ public class NPCManager : MonoBehaviour
     private IEnumerator DisplayDialogue()
     {
         isDialoguePlaying = true;
-        dialogueText.text = dialogueLines[currentLine];
+        dialogueText.text = dialogueLines[currentLine].dialogueText;
+        EnableColliders(currentLine);
         currentLine++;
 
         yield return new WaitForSeconds(timeBetweenLines);
 
-        if (currentLine < dialogueLines.Length)
+        DisableColliders(currentLine - 1);
+
+        if (currentLine < dialogueLines.Count)
         {
             StartCoroutine(DisplayDialogue());
         }
@@ -85,6 +90,36 @@ public class NPCManager : MonoBehaviour
             dialogueText.text = "";
             currentLine = 0; // 重新开始对话
             isDialoguePlaying = false;
+        }
+    }
+
+    private void EnableColliders(int lineIndex)
+    {
+        if (dialogueLines[lineIndex].colliders != null)
+        {
+            foreach (GameObject colliderObject in dialogueLines[lineIndex].colliders)
+            {
+                Collider2D collider = colliderObject.GetComponent<Collider2D>();
+                if (collider != null)
+                {
+                    collider.enabled = true;
+                }
+            }
+        }
+    }
+
+    private void DisableColliders(int lineIndex)
+    {
+        if (dialogueLines[lineIndex].colliders != null)
+        {
+            foreach (GameObject colliderObject in dialogueLines[lineIndex].colliders)
+            {
+                Collider2D collider = colliderObject.GetComponent<Collider2D>();
+                if (collider != null)
+                {
+                    collider.enabled = false;
+                }
+            }
         }
     }
 }
