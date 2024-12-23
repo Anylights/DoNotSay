@@ -2,12 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
+using Febucci.UI;
 
 public class NPCManager : MonoBehaviour
 {
     [Header("Dialogue Settings")]
     public TextMeshProUGUI dialogueText; // TextMeshPro文本框
     public List<DialogueLine> dialogueLines; // 每段对话及其绑定的碰撞体
+    public TypewriterByCharacter typewriter; // TypewriterEffect 插件
 
     public float timeBetweenLines = 2f;  // 每段对话的显示时间
 
@@ -17,6 +20,7 @@ public class NPCManager : MonoBehaviour
     private bool isPlayerInRange = false;
     private int currentLine = 0;
     private bool isDialoguePlaying = false;
+    private bool prevIsPlayerInRange = false;
 
     void Start()
     {
@@ -42,9 +46,8 @@ public class NPCManager : MonoBehaviour
         if (hit.collider != null && hit.collider.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            // 确保玩家在物体和射线终点之间
             float playerDistance = (hit.point - (Vector2)transform.position).magnitude;
-            if (playerDistance <= distance && !isDialoguePlaying)
+            if (!prevIsPlayerInRange && playerDistance <= distance && !isDialoguePlaying)
             {
                 dialogueText.text = "按F键进行对话";
             }
@@ -57,6 +60,7 @@ public class NPCManager : MonoBehaviour
                 dialogueText.text = "";
             }
         }
+        prevIsPlayerInRange = isPlayerInRange;
     }
 
     private void HandleDialogueInput()
@@ -68,22 +72,31 @@ public class NPCManager : MonoBehaviour
                 StartCoroutine(DisplayDialogue());
             }
         }
+        else if (isDialoguePlaying && Input.GetKeyDown(KeyCode.F))
+        {
+            DisplayNextLine();
+        }
     }
 
     private IEnumerator DisplayDialogue()
     {
         isDialoguePlaying = true;
-        dialogueText.text = dialogueLines[currentLine].dialogueText;
+        typewriter.ShowText(dialogueLines[currentLine].dialogueText);
         EnableColliders(currentLine);
         currentLine++;
 
-        yield return new WaitForSeconds(timeBetweenLines);
+        yield return null; // 等待玩家按F显示下一句
+    }
 
+    private void DisplayNextLine()
+    {
         DisableColliders(currentLine - 1);
 
         if (currentLine < dialogueLines.Count)
         {
-            StartCoroutine(DisplayDialogue());
+            typewriter.ShowText(dialogueLines[currentLine].dialogueText);
+            EnableColliders(currentLine);
+            currentLine++;
         }
         else
         {
