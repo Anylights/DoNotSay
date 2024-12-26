@@ -42,3 +42,51 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Sky
+    uniqueID: 4135405297
+    locked: 0
+  - name: Layer1
+    uniqueID: 2663160291
+    locked: 0
+  - name: Layer2
+    uniqueID: 2878748869
+    locked: 0
+  - name: Layer3
+    uniqueID: 2167329189
+    locked: 0
+  - name: Layer4
+    uniqueID: 1972045157
+    locked: 0
+  - name: Layer5
+    uniqueID: 2331937135
+    locked: 0
+  - name: Layer6
+    uniqueID: 3043786183
+    locked: 0
+  - name: Layer7
+    uniqueID: 661781153
+    locked: 0
+  - name: Layer8
+    uniqueID: 2577403915
+    locked: 0
+  - name: Tiles3
+    uniqueID: 2364540421
+    locked: 0
+  - name: Layer9
+    uniqueID: 2496961677
+    locked: 0
+  - name: Tiles2
+    uniqueID: 3926571285
+    locked: 0
+  - name: Layer10
+    uniqueID: 3929362137
+    locked: 0
+  - name: Tiles1
+    uniqueID: 3196310509
+    locked: 0
+  - name: Layer11
+    uniqueID: 4022131917
+    locked: 0
+  - name: Player
+    uniqueID: 1533614655
+    locked: 0

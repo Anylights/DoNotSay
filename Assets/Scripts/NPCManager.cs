@@ -21,6 +21,8 @@ public class NPCManager : MonoBehaviour
     private int currentLine = 0;
     private bool isDialoguePlaying = false;
     private bool prevIsPlayerInRange = false;
+    private float dialogueTimer = 0f;
+    private float dialogueTimeout = 5f;
 
     void Start()
     {
@@ -31,6 +33,7 @@ public class NPCManager : MonoBehaviour
     {
         CheckForPlayer();
         HandleDialogueInput();
+        CheckDialogueTimeout();
     }
 
     private void CheckForPlayer()
@@ -45,11 +48,22 @@ public class NPCManager : MonoBehaviour
         // 检查射线是否与玩家发生碰撞
         if (hit.collider != null && hit.collider.CompareTag("Player"))
         {
-            isPlayerInRange = true;
-            float playerDistance = (hit.point - (Vector2)transform.position).magnitude;
-            if (!prevIsPlayerInRange && playerDistance <= distance && !isDialoguePlaying)
+            float playerDistance = Mathf.Abs(hit.point.x - transform.position.x);
+            if (playerDistance <= 1f)
             {
-                dialogueText.text = "按F键进行对话";
+                isPlayerInRange = true;
+                if (!prevIsPlayerInRange && !isDialoguePlaying)
+                {
+                    dialogueText.text = "按F键进行对话";
+                }
+            }
+            else
+            {
+                isPlayerInRange = false;
+                if (!isDialoguePlaying)
+                {
+                    dialogueText.text = "";
+                }
             }
         }
         else
@@ -72,7 +86,7 @@ public class NPCManager : MonoBehaviour
                 StartCoroutine(DisplayDialogue());
             }
         }
-        else if (isDialoguePlaying && Input.GetKeyDown(KeyCode.F))
+        else if (isDialoguePlaying && Input.GetKeyDown(KeyCode.F) && isPlayerInRange)
         {
             DisplayNextLine();
         }
@@ -81,6 +95,7 @@ public class NPCManager : MonoBehaviour
     private IEnumerator DisplayDialogue()
     {
         isDialoguePlaying = true;
+        dialogueTimer = 0f; // 重置对话计时器
         typewriter.ShowText(dialogueLines[currentLine].dialogueText);
         EnableColliders(currentLine);
         currentLine++;
@@ -94,6 +109,7 @@ public class NPCManager : MonoBehaviour
 
         if (currentLine < dialogueLines.Count)
         {
+            dialogueTimer = 0f; // 重置对话计时器
             typewriter.ShowText(dialogueLines[currentLine].dialogueText);
             EnableColliders(currentLine);
             currentLine++;
@@ -103,6 +119,20 @@ public class NPCManager : MonoBehaviour
             dialogueText.text = "";
             currentLine = 0; // 重新开始对话
             isDialoguePlaying = false;
+        }
+    }
+
+    private void CheckDialogueTimeout()
+    {
+        if (isDialoguePlaying)
+        {
+            dialogueTimer += Time.deltaTime;
+            if (dialogueTimer >= dialogueTimeout)
+            {
+                dialogueText.text = "";
+                currentLine = 0; // 重新开始对话
+                isDialoguePlaying = false;
+            }
         }
     }
 
