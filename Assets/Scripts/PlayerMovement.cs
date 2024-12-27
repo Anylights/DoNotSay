@@ -75,8 +75,21 @@ public class PlayerMovement : MonoBehaviour
         projectileDirection = (mousePosition - transform.position).normalized;
 
         currentProjectile = Instantiate(WordPrehab, transform.position, Quaternion.identity);
-        currentProjectile.transform.rotation = Quaternion.LookRotation(Vector3.forward, projectileDirection); // 设置预制件的旋转方向
-        projectileStartTime = Time.time; // 记录发射时间
+
+        // 添加调试代码
+        Collider2D projectileCollider = currentProjectile.GetComponent<Collider2D>();
+        if (projectileCollider == null)
+        {
+            Debug.LogError("预制体缺少Collider2D组件！");
+        }
+        else
+        {
+            Debug.Log($"预制体碰撞体已确认: isTrigger = {projectileCollider.isTrigger}");
+        }
+
+        currentProjectile.tag = "Word";  // 确保设置正确的标签
+        currentProjectile.transform.rotation = Quaternion.LookRotation(Vector3.forward, projectileDirection);
+        projectileStartTime = Time.time;
         StartCoroutine(DestroyProjectileAfterTime(currentProjectile, WordLifeTime));
     }
 
