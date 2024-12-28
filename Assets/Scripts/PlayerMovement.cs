@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine; // 添加这个命名空间引用
+                   // 或使用 UnityEngine.Rendering.Universal
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -10,11 +12,21 @@ public class PlayerMovement : MonoBehaviour
     //角色可设置属性
     public float moveSpeed = 5f; // 正常移动速度
 
-    // 发射预制体相关属性
-    public GameObject WordPrehab; // 预制体
-    public float initialSpeed = 20f; // 初始速度
-    public float decayRate = 2f; // 速度衰减率
-    public float WordLifeTime = 2f; // 预制体存在时间
+    [Header("Projectile Settings")]
+    public GameObject WordPrehab;
+    public float minInitialSpeed = 10f;    // 最小初始速度
+    public float maxInitialSpeed = 50f;    // 最大初始速度
+    public float maxChargeTime = 3f;       // 最大蓄力时间
+    public float decayRate = 10f;          // 固定衰减率
+    public float WordLifeTime = 0.5f;      // 固定存在时间
+
+    [Header("Screen Shake Settings")]
+    public float minShakeAmount = 0.02f;   // 最小晃动幅度
+    public float maxShakeAmount = 0.2f;    // 最大晃动幅度
+
+    [Header("Light 2D Settings")]
+    public UnityEngine.Rendering.Universal.Light2D mainLight2D;         // 替换为 Light2D
+    public UnityEngine.Rendering.Universal.Light2D otherPointLight2D;   // 替换为 Light2D
 
     //角色内部变量
     private float currentSpeed;
@@ -22,11 +34,18 @@ public class PlayerMovement : MonoBehaviour
     private GameObject currentProjectile; // 当前存在的预制体
     private Vector2 projectileDirection; // 发射体的方向
     private float projectileStartTime; // 发射体开始时间
+    private float chargeStartTime;     // 开始蓄力的时间
+    private bool isCharging;           // 是否正在蓄力
+    private Camera mainCamera;         // 主相机引用
+    private float initialSpeed;        // 添加这个变量来存储发射速度
+    private CinemachineImpulseSource impulseSource;
 
     void Start()
     {
         animator = GetComponent<Animator>();
         currentSpeed = moveSpeed;
+        mainCamera = Camera.main;
+        impulseSource = GetComponent<CinemachineImpulseSource>(); // 获取 ImpulseSource
     }
 
     void Update()
@@ -34,6 +53,10 @@ public class PlayerMovement : MonoBehaviour
         HandleInput();
         MovePlayer();
         MoveProjectile();
+        if (isCharging)
+        {
+            HandleChargeShake();
+        }
     }
 
     private void HandleInput()
@@ -55,10 +78,43 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = new Vector3(1, 1, 1);
         }
 
-        // 按下鼠标右键发射预制体
-        if (Input.GetMouseButtonDown(1) && currentProjectile == null)
+        // 处理蓄力发射
+        if (Input.GetMouseButtonDown(0) && currentProjectile == null)
+        {
+            StartCharging();
+        }
+        else if (Input.GetMouseButtonUp(0) && isCharging)
         {
             FireProjectile();
+        }
+    }
+
+    private void StartCharging()
+    {
+        isCharging = true;
+        chargeStartTime = Time.time;
+    }
+
+    private void HandleChargeShake()
+    {
+        float chargeTime = Mathf.Min(Time.time - chargeStartTime, maxChargeTime);
+        if (chargeTime <= 0) return;
+        float chargeProgress = chargeTime / maxChargeTime;
+        float currentShakeAmount = Mathf.Lerp(minShakeAmount, maxShakeAmount, chargeProgress);
+
+        // 如果使用 Light2D，则修改 intensity
+        if (mainLight2D != null)
+        {
+            mainLight2D.intensity = Mathf.Lerp(1f, 0.2f, chargeProgress);
+        }
+        if (otherPointLight2D != null)
+        {
+            otherPointLight2D.intensity = Mathf.Lerp(0f, 20f, chargeProgress);
+        }
+
+        if (currentShakeAmount > 0)
+        {
+            impulseSource.GenerateImpulse(currentShakeAmount);
         }
     }
 
@@ -71,25 +127,33 @@ public class PlayerMovement : MonoBehaviour
 
     private void FireProjectile()
     {
-        Vector3 mousePosition = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, 0);
+        isCharging = false;
+        // 恢复 Light2D 的初始值
+        if (mainLight2D != null) mainLight2D.intensity = 1f;
+        if (otherPointLight2D != null) otherPointLight2D.intensity = 0f;
+
+        mainCamera.transform.position = new Vector3(
+            mainCamera.transform.position.x,
+            mainCamera.transform.position.y,
+            mainCamera.transform.position.z
+        );
+
+        float chargeTime = Mathf.Min(Time.time - chargeStartTime, maxChargeTime);
+        float chargeProgress = chargeTime / maxChargeTime;
+        float initialSpeed = Mathf.Lerp(minInitialSpeed, maxInitialSpeed, chargeProgress);
+
+        Vector3 mousePosition = new Vector3(
+            Camera.main.ScreenToWorldPoint(Input.mousePosition).x,
+            Camera.main.ScreenToWorldPoint(Input.mousePosition).y,
+            0
+        );
         projectileDirection = (mousePosition - transform.position).normalized;
 
         currentProjectile = Instantiate(WordPrehab, transform.position, Quaternion.identity);
-
-        // 添加调试代码
-        Collider2D projectileCollider = currentProjectile.GetComponent<Collider2D>();
-        if (projectileCollider == null)
-        {
-            Debug.LogError("预制体缺少Collider2D组件！");
-        }
-        else
-        {
-            Debug.Log($"预制体碰撞体已确认: isTrigger = {projectileCollider.isTrigger}");
-        }
-
-        currentProjectile.tag = "Word";  // 确保设置正确的标签
+        currentProjectile.tag = "Word";
         currentProjectile.transform.rotation = Quaternion.LookRotation(Vector3.forward, projectileDirection);
         projectileStartTime = Time.time;
+        this.initialSpeed = initialSpeed;  // 设置实际发射速度
         StartCoroutine(DestroyProjectileAfterTime(currentProjectile, WordLifeTime));
     }
 

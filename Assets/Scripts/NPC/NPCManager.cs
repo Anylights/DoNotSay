@@ -18,11 +18,11 @@ public class NPCManager : MonoBehaviour
     [Header("Dialogue Settings")]
     public float dialogueTimeout = 10f;
 
-    private DialoguePart currentPart;
-    private int currentLineIndex = 0;
-    private bool isPlayerInRange = false;
-    private bool isDialoguePlaying = false;
-    private float dialogueTimer = 0f;
+    protected DialoguePart currentPart;
+    protected int currentLineIndex = 0;
+    protected bool isDialoguePlaying = false; // 修改为 protected
+    protected bool isPlayerInRange = false; // 修改为 protected
+    protected float dialogueTimer = 0f; // 修改为 protected
 
     void Start()
     {
@@ -51,12 +51,6 @@ public class NPCManager : MonoBehaviour
         currentLineIndex = 0;
         isDialoguePlaying = false;
         DisableAllColliders(currentPart);
-
-        // 如果玩家在范围内，显示提示文本
-        if (isPlayerInRange)
-        {
-            dialogueText.text = "按F键进行对话";
-        }
     }
 
     void Update()
@@ -70,10 +64,6 @@ public class NPCManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (!isDialoguePlaying)
-            {
-                dialogueText.text = "按F键进行对话";
-            }
         }
     }
 
@@ -123,7 +113,7 @@ public class NPCManager : MonoBehaviour
         yield return null; // 等待玩家按F显示下一句
     }
 
-    private void DisplayNextLine()
+    protected virtual void DisplayNextLine()
     {
         // 如果已经到达或超过最后一行，则结束对话
         if (currentLineIndex >= currentPart.dialogueLines.Count)
@@ -172,7 +162,7 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    private void DisableColliders(int lineIndex)
+    protected void DisableColliders(int lineIndex) // 修改为 protected
     {
         if (currentPart.dialogueLines[lineIndex].colliders != null)
         {
