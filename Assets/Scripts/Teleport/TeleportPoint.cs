@@ -9,7 +9,7 @@ public class TeleportPoint : MonoBehaviour
     [Header("Visual Settings")]
     public Color gizmoColor = Color.blue;  // 在Scene视图中的显示颜色
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
         if (!isActive) return;
 
