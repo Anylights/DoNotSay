@@ -24,7 +24,7 @@ public class NPCManager : MonoBehaviour
     protected bool isPlayerInRange = false; // 修改为 protected
     protected float dialogueTimer = 0f; // 修改为 protected
 
-    void Start()
+    protected virtual void Start()
     {
         // 设置初始对话部分
         SwitchToDialoguePart(initialPartName);
@@ -87,22 +87,31 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    private void HandleDialogueInput()
+    protected virtual void HandleDialogueInput()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.F) && !isDialoguePlaying)
+        // 按下F键且玩家在范围内
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.F))
         {
-            if (currentLineIndex < currentPart.dialogueLines.Count)
+            // 只有当typewriter不在播放时才响应F键
+            if (!typewriter.isShowingText)
             {
-                StartCoroutine(DisplayDialogue());
+                if (isDialoguePlaying)
+                {
+                    DisplayNextLine();
+                }
+                else
+                {
+                    if (currentLineIndex < currentPart.dialogueLines.Count)
+                    {
+                        StartCoroutine(DisplayDialogue());
+                    }
+                }
             }
-        }
-        else if (isDialoguePlaying && Input.GetKeyDown(KeyCode.F) && isPlayerInRange)
-        {
-            DisplayNextLine();
+            // 如果typewriter正在播放，按下F键不做任何操作
         }
     }
 
-    private IEnumerator DisplayDialogue()
+    protected IEnumerator DisplayDialogue() // 修改为 protected
     {
         isDialoguePlaying = true;
         dialogueTimer = 0f; // 重置对话计时器
@@ -128,7 +137,7 @@ public class NPCManager : MonoBehaviour
         DisableColliders(currentLineIndex - 1); // 关闭上一句对话的碰撞体
         dialogueTimer = 0f;
         typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
-        EnableColliders(currentLineIndex);
+        EnableColliders(currentLineIndex); // 启用当前对话的碰撞体
         currentLineIndex++;
     }
 
@@ -162,8 +171,14 @@ public class NPCManager : MonoBehaviour
         }
     }
 
-    protected void DisableColliders(int lineIndex) // 修改为 protected
+    public void DisableColliders(int lineIndex)
     {
+        if (lineIndex < 0 || lineIndex >= currentPart.dialogueLines.Count)
+        {
+            Debug.Log("lineIndex 超出范围" + lineIndex);
+            return;
+        }
+
         if (currentPart.dialogueLines[lineIndex].colliders != null)
         {
             foreach (GameObject colliderObject in currentPart.dialogueLines[lineIndex].colliders)
@@ -183,5 +198,13 @@ public class NPCManager : MonoBehaviour
         {
             DisableColliders(i);
         }
+    }
+
+    public void EndCurrentDialogue()
+    {
+        dialogueText.text = "";
+        DisableColliders(currentLineIndex - 1); // 关闭当前对话的碰撞体
+        currentLineIndex = 0;
+        isDialoguePlaying = false;
     }
 }

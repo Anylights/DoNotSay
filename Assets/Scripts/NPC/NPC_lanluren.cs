@@ -16,11 +16,5 @@ public class NPC_lanluren : NPCManager
         }
     }
 
-    public void EndCurrentDialogue()
-    {
-        dialogueText.text = "";
-        DisableColliders(currentLineIndex - 1); // 关闭当前对话的碰撞体
-        currentLineIndex = 0;
-        isDialoguePlaying = false;
-    }
+
 }

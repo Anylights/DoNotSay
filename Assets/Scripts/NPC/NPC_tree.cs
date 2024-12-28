@@ -7,7 +7,7 @@ public class NPC_tree : AutoNPCManager
         EventCenter.Instance.Subscribe("NPC_lanluren_Part1done", OnLanlurenPart1Done);
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         EventCenter.Instance.Unsubscribe("NPC_lanluren_Part1done", OnLanlurenPart1Done);
     }
