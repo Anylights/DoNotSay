@@ -16,4 +16,14 @@ public class NPC_tree : AutoNPCManager
     {
         SwitchToDialoguePart("Tree_2");
     }
+
+    protected override void DisplayNextLine()
+    {
+        base.DisplayNextLine();
+
+        if (currentPart.partName == "Tree_2" && currentLineIndex >= currentPart.dialogueLines.Count)
+        {
+            EventCenter.Instance.TriggerEvent("Tree_2_Completed");
+        }
+    }
 }

@@ -39,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
     private Camera mainCamera;         // 主相机引用
     private float initialSpeed;        // 添加这个变量来存储发射速度
     private CinemachineImpulseSource impulseSource;
+    private bool canFireProjectile = false; // 添加标志位
 
     void Start()
     {
@@ -46,6 +47,12 @@ public class PlayerMovement : MonoBehaviour
         currentSpeed = moveSpeed;
         mainCamera = Camera.main;
         impulseSource = GetComponent<CinemachineImpulseSource>(); // 获取 ImpulseSource
+        EventCenter.Instance.Subscribe("Tree_2_Completed", EnableFireProjectile);
+    }
+
+    void OnDestroy()
+    {
+        EventCenter.Instance.Unsubscribe("Tree_2_Completed", EnableFireProjectile);
     }
 
     void Update()
@@ -79,11 +86,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // 处理蓄力发射
-        if (Input.GetMouseButtonDown(0) && currentProjectile == null)
+        if (canFireProjectile && Input.GetMouseButtonDown(0) && currentProjectile == null)
         {
             StartCharging();
         }
-        else if (Input.GetMouseButtonUp(0) && isCharging)
+        else if (canFireProjectile && Input.GetMouseButtonUp(0) && isCharging)
         {
             FireProjectile();
         }
@@ -172,5 +179,10 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(time);
         Destroy(projectile);
         currentProjectile = null;
+    }
+
+    private void EnableFireProjectile()
+    {
+        canFireProjectile = true; // 启用发射预制体的功能
     }
 }

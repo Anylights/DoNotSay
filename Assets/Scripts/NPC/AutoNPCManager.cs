@@ -97,21 +97,23 @@ public class AutoNPCManager : MonoBehaviour
         yield return null;
     }
 
-    private void DisplayNextLine()
+    protected virtual void DisplayNextLine()
     {
-        DisableColliders(currentLineIndex - 1);
-        lineTimer = 0f;
-
+        // 如果已经到达或超过最后一行，则结束对话
         if (currentLineIndex >= currentPart.dialogueLines.Count)
         {
-            ResetDialogue();
+            dialogueText.text = "";
+            DisableColliders(currentLineIndex - 1); // 关闭最后一句对话的碰撞体
+            currentLineIndex = 0;
+            isDialoguePlaying = false;
+            return;
         }
-        else
-        {
-            typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
-            EnableColliders(currentLineIndex);
-            currentLineIndex++;
-        }
+
+        DisableColliders(currentLineIndex - 1); // 关闭上一句对话的碰撞体
+        lineTimer = 0f;
+        typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
+        EnableColliders(currentLineIndex);
+        currentLineIndex++;
     }
 
     private void ResetDialogue()
