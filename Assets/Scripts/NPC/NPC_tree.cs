@@ -25,5 +25,11 @@ public class NPC_tree : AutoNPCManager
         {
             EventCenter.Instance.TriggerEvent("Tree_2_Completed");
         }
+
+        else if (currentPart.partName == "Tree_3" && currentLineIndex >= currentPart.dialogueLines.Count)
+        {
+            EventCenter.Instance.TriggerEvent("Tree_2_Completed");
+            EventCenter.Instance.TriggerEvent("Tree_3_Completed");
+        }
     }
 }

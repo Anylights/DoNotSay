@@ -182,7 +182,7 @@ public class PlayerMovement : MonoBehaviour
         currentProjectile = null;
     }
 
-    private void EnableFireProjectile()
+    public void EnableFireProjectile()
     {
         canFireProjectile = true; // 启用发射预制体的功能
     }
