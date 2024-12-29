@@ -6,6 +6,7 @@ using Febucci.UI;
 
 public class AutoNPCManager : MonoBehaviour
 {
+    [Header("Dialogue UI")]
     public TextMeshProUGUI dialogueText;
     public TypewriterByCharacter typewriter;
 
@@ -13,13 +14,12 @@ public class AutoNPCManager : MonoBehaviour
     public List<DialoguePart> dialogueParts;  // 存储所有对话部分
     public string initialPartName;            // 初始对话部分的名称
 
-    public float timeBetweenLines = 3f; // 设置自动切换下一句的时间
-
     protected DialoguePart currentPart;
     protected int currentLineIndex = 0;
-    protected bool isPlayerInRange = false;
     protected bool isDialoguePlaying = false;
+    protected bool isPlayerInRange = false;
     protected float lineTimer = 0f;
+    private Coroutine dialogueCoroutine; // 添加一个 Coroutine 变量来跟踪当前的对话协程
 
     void Start()
     {
@@ -54,7 +54,7 @@ public class AutoNPCManager : MonoBehaviour
         DisableAllColliders(currentPart);
     }
 
-    private void Update()
+    void Update()
     {
         // 移除原先的 lineTimer 逻辑等
     }
@@ -67,7 +67,11 @@ public class AutoNPCManager : MonoBehaviour
             // 如果当前没有在播放对话，则从头开始自动播放
             if (!isDialoguePlaying && currentLineIndex < currentPart.dialogueLines.Count)
             {
-                StartCoroutine(AutoNextLineCoroutine());
+                if (dialogueCoroutine != null)
+                {
+                    StopCoroutine(dialogueCoroutine);
+                }
+                dialogueCoroutine = StartCoroutine(AutoNextLineCoroutine());
             }
         }
     }
@@ -77,11 +81,16 @@ public class AutoNPCManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
+            if (dialogueCoroutine != null)
+            {
+                StopCoroutine(dialogueCoroutine);
+                dialogueCoroutine = null;
+            }
             ResetDialogue(); // 退出碰撞范围则重置
         }
     }
 
-    private IEnumerator AutoNextLineCoroutine()
+    protected IEnumerator AutoNextLineCoroutine() // 修改为 protected
     {
         isDialoguePlaying = true;
         // 循环显示当前对话部分中的所有行
@@ -113,7 +122,7 @@ public class AutoNPCManager : MonoBehaviour
             yield return new WaitForSeconds(3f);
             if (isPlayerInRange)
             {
-                StartCoroutine(AutoNextLineCoroutine());
+                dialogueCoroutine = StartCoroutine(AutoNextLineCoroutine());
             }
         }
     }

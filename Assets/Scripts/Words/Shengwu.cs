@@ -32,6 +32,7 @@ public class Shengwu : MonoBehaviour
     {
         if (other.CompareTag("Word"))
         {
+            EventCenter.Instance.TriggerEvent("FakeEndTriggered");
             if (successParticlePrefab != null)
             {
                 GameObject particle = Instantiate(successParticlePrefab, transform.position, Quaternion.identity);
