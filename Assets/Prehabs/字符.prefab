@@ -120,11 +120,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 97a23a0e1049fad468a1fc7800c5afc6, type: 3}
       propertyPath: m_SortingLayer
-      value: 16
+      value: 17
       objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 97a23a0e1049fad468a1fc7800c5afc6, type: 3}
       propertyPath: m_SortingLayerID
-      value: 1533614655
+      value: -1161541495
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 97a23a0e1049fad468a1fc7800c5afc6, type: 3}
       propertyPath: m_LocalScale.x
@@ -248,9 +248,9 @@ TrailRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1533614655
-  m_SortingLayer: 16
-  m_SortingOrder: 0
+  m_SortingLayerID: -1161541495
+  m_SortingLayer: 17
+  m_SortingOrder: 200
   m_Time: 0.2
   m_PreviewTimeScale: 1
   m_Parameters:
