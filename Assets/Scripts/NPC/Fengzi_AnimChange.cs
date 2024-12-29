@@ -39,5 +39,6 @@ public class Fengzi_AnimChange : MonoBehaviour
         Fengzi_Dialogue_collider.enabled = true;
         yield return new WaitForSeconds(1.5f);
         anim.SetBool("IsAwaken", true);
+        EventCenter.Instance.TriggerEvent("FengziAwakened");
     }
 }
