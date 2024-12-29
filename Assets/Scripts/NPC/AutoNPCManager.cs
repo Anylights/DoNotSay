@@ -56,14 +56,7 @@ public class AutoNPCManager : MonoBehaviour
 
     private void Update()
     {
-        if (isDialoguePlaying)
-        {
-            lineTimer += Time.deltaTime;
-            if (lineTimer >= timeBetweenLines)
-            {
-                DisplayNextLine();
-            }
-        }
+        // 移除原先的 lineTimer 逻辑等
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -71,9 +64,10 @@ public class AutoNPCManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
+            // 如果当前没有在播放对话，则从头开始自动播放
             if (!isDialoguePlaying && currentLineIndex < currentPart.dialogueLines.Count)
             {
-                StartCoroutine(DisplayDialogue());
+                StartCoroutine(AutoNextLineCoroutine());
             }
         }
     }
@@ -83,37 +77,51 @@ public class AutoNPCManager : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            ResetDialogue();
+            ResetDialogue(); // 退出碰撞范围则重置
         }
     }
 
-    private IEnumerator DisplayDialogue()
+    private IEnumerator AutoNextLineCoroutine()
     {
         isDialoguePlaying = true;
-        lineTimer = 0f;
-        typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
-        EnableColliders(currentLineIndex);
-        currentLineIndex++;
-        yield return null;
-    }
-
-    protected virtual void DisplayNextLine()
-    {
-        // 如果已经到达或超过最后一行，则结束对话
-        if (currentLineIndex >= currentPart.dialogueLines.Count)
+        // 循环显示当前对话部分中的所有行
+        while (currentLineIndex < currentPart.dialogueLines.Count)
         {
             dialogueText.text = "";
-            DisableColliders(currentLineIndex - 1); // 关闭最后一句对话的碰撞体
-            currentLineIndex = 0;
-            isDialoguePlaying = false;
-            return;
+            typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
+            EnableColliders(currentLineIndex);
+            currentLineIndex++;
+
+            // 等待当前行文本完成显示
+            yield return new WaitUntil(() => !typewriter.isShowingText);
+            // 再等待 2 秒后自动显示下一行
+            yield return new WaitForSeconds(2f);
         }
 
-        DisableColliders(currentLineIndex - 1); // 关闭上一句对话的碰撞体
-        lineTimer = 0f;
-        typewriter.ShowText(currentPart.dialogueLines[currentLineIndex].dialogueText);
-        EnableColliders(currentLineIndex);
-        currentLineIndex++;
+        // 当前对话全部播放结束后执行
+        dialogueText.text = "";
+        DisableColliders(currentLineIndex - 1);
+        currentLineIndex = 0;
+        isDialoguePlaying = false;
+
+        // 调用虚函数，让子类有机会在对话完全结束时执行自己的逻辑
+        OnAllLinesDisplayed();
+
+        // 如果玩家依旧在碰撞范围内，则 3 秒后从头开始播放对话
+        if (isPlayerInRange)
+        {
+            yield return new WaitForSeconds(3f);
+            if (isPlayerInRange)
+            {
+                StartCoroutine(AutoNextLineCoroutine());
+            }
+        }
+    }
+
+    // 新增可被子类重写的方法
+    protected virtual void OnAllLinesDisplayed()
+    {
+        // 默认不执行任何操作，子类可 override
     }
 
     private void ResetDialogue()
@@ -157,5 +165,13 @@ public class AutoNPCManager : MonoBehaviour
         {
             DisableColliders(i);
         }
+    }
+
+    public void EndCurrentDialogue()
+    {
+        dialogueText.text = "";
+        DisableColliders(currentLineIndex - 1); // 关闭当前对话的碰撞体
+        currentLineIndex = 0;
+        isDialoguePlaying = false;
     }
 }
