@@ -51,6 +51,7 @@ public class ESC : MonoBehaviour
             {
                 textMesh.text = "";
             }
+            AudioManager.Instance.Play("Word_break");
             StartCoroutine(ExitGameAfterDelay(3f));
         }
     }
@@ -58,7 +59,6 @@ public class ESC : MonoBehaviour
     private IEnumerator ExitGameAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        Debug.Log("Exiting game...");
         Application.Quit();
 
     }

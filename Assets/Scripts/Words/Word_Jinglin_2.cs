@@ -44,6 +44,7 @@ public class Word_Jinglin_2 : MonoBehaviour
                 Destroy(particle, particleLifetime);  // 3秒后销毁粒子特效
             }
             playerMovement.canFireProjectile = false; // 设置标志位
+            CursorManager.Instance.HideMouse();
             AudioManager.Instance.Play("Word_break");
             impulseSource.GenerateImpulse(); // 使用 Cinemachine 生成脉冲以实现摄像机震动
             other.gameObject.SetActive(false);

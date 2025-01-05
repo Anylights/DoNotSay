@@ -133,6 +133,11 @@ public class AutoNPCManager : MonoBehaviour
         // 默认不执行任何操作，子类可 override
     }
 
+    protected virtual void OnLineStarted(int lineIndex)
+    {
+        // 默认实现，可在子类中重写
+    }
+
     private void ResetDialogue()
     {
         dialogueText.text = "";

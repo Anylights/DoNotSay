@@ -6,7 +6,7 @@ using Cinemachine; // 添加 Cinemachine 命名空间
 public class Word_Jinglin : MonoBehaviour
 {
     public TeleportPoint Changeed_teleportPoint; // 添加传送点引用
-    public TeleportPoint new_teleportPoint; // 添加传送点引用
+
     [Header("Effect Settings")]
     public GameObject successParticlePrefab;
     public float particleLifetime = 3f;    // 粒子特效存在时间
@@ -46,7 +46,7 @@ public class Word_Jinglin : MonoBehaviour
             other.gameObject.SetActive(false);
             npc.EndCurrentDialogue(); // 调用 NPC_zhiwen 脚本关闭当前的对话
             npc.SwitchToDialoguePart("Part3");
-            Changeed_teleportPoint.targetPoint = new_teleportPoint; // 设置传送点目标
+            Destroy(Changeed_teleportPoint.gameObject); // 销毁传送点
 
         }
     }

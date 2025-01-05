@@ -8,6 +8,8 @@ public class True_End : MonoBehaviour
     [Header("NPC Type Settings")]
     public AutoNPCManager npc;
 
+    public NPC_tree tree;
+
     [Header("Effect Settings")]
     public GameObject successParticlePrefab;
     public float particleLifetime = 3f;    // 粒子特效存在时间
@@ -38,6 +40,7 @@ public class True_End : MonoBehaviour
                 GameObject particle = Instantiate(successParticlePrefab, transform.position, Quaternion.identity);
                 Destroy(particle, particleLifetime);  // 3秒后销毁粒子特效
             }
+            tree.SwitchToDialoguePart("Tree_7");
             EventCenter.Instance.TriggerEvent("TrueEndTriggered");
             AudioManager.Instance.Play("End");
             impulseSource.GenerateImpulse(); // 使用 Cinemachine 生成脉冲以实现摄像机震动

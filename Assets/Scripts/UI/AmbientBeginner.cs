@@ -4,7 +4,7 @@ using UnityEngine;
 public class AmbientBeginner : MonoBehaviour
 {
     // ...existing code...
-
+    public float Volumme;
     private AudioSource audioSource;
 
     void Start()
@@ -25,7 +25,7 @@ public class AmbientBeginner : MonoBehaviour
         float duration = 5f; // 渐变持续时间
         float elapsed = 0f;
         float startVolume = audioSource.volume;
-        float targetVolume = 1f;
+        float targetVolume = Volumme;
 
         while (elapsed < duration)
         {

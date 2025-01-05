@@ -5,10 +5,12 @@ public class EndManager : AutoNPCManager
 {
     // 用于延时启用的碰撞体
     public Collider2D finalCollider;
+
     // 用于 0~1 透明度渐变的精灵
     public SpriteRenderer finalSprite;
 
     public AudioSource Ambient;
+    public AudioSource Ambient2;
 
     private void OnEnable()
     {
@@ -51,6 +53,7 @@ public class EndManager : AutoNPCManager
         // 初始化 Ambient 音量
         float initialVolume = Ambient.volume;
 
+        float initialVolume2 = Ambient2.volume;
         // 等待 PlayEndSequence 的剩余逻辑（透明度渐变和碰撞体启用）
         float timer = 0f;
         while (timer < 10f)
@@ -70,6 +73,10 @@ public class EndManager : AutoNPCManager
             if (Ambient != null)
             {
                 Ambient.volume = Mathf.Lerp(initialVolume, 0f, timer / 10f);
+            }
+            if (Ambient2 != null)
+            {
+                Ambient2.volume = Mathf.Lerp(initialVolume, 0f, timer / 10f);
             }
 
             yield return null;
