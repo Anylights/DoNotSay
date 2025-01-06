@@ -60,6 +60,6 @@ public class ESC : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Application.Quit();
-
+        Debug.Log("Game exited");
     }
 }

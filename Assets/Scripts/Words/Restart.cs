@@ -2,9 +2,20 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 using Cinemachine; // 添加 Cinemachine 命名空间
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
-public class True_End : MonoBehaviour
+public class Restart : MonoBehaviour
 {
+
+    public SpriteRenderer finalSprite;
+
+    public Collider2D ShengWuCollider;
+
+    public SpriteRenderer ShengWuSprite;
+
+
+
     [Header("NPC Type Settings")]
     public AutoNPCManager npc;
 
@@ -39,12 +50,23 @@ public class True_End : MonoBehaviour
                 Destroy(particle, particleLifetime);  // 3秒后销毁粒子特效
             }
 
-            EventCenter.Instance.TriggerEvent("TrueEndTriggered");
+            // 精灵为全透明
+            if (finalSprite != null)
+            {
+                Color c = finalSprite.color;
+                c.a = 0f;
+                finalSprite.color = c;
+            }
+
+            ShengWuCollider.enabled = true;
+            ShengWuSprite.enabled = true;
+
+            EventCenter.Instance.TriggerEvent("RestartTriggered");
+            AudioManager.Instance.Stop("Final");
             AudioManager.Instance.Play("End");
             impulseSource.GenerateImpulse(); // 使用 Cinemachine 生成脉冲以实现摄像机震动
             other.gameObject.SetActive(false);
             npc.EndCurrentDialogue();
-            npc.SwitchToDialoguePart("Tree_7");
 
             StartCoroutine(SlowTimeCoroutine()); // 开始时间缩放协程
         }
@@ -53,30 +75,20 @@ public class True_End : MonoBehaviour
     private IEnumerator SlowTimeCoroutine()
     {
         float targetScale = 0.05f;
-        float duration = 1f;
-        float elapsed = 0f;
+        float durationFirst = 1f;
+        float elapsedFirst = 0f;
         float initialScale = Time.timeScale;
 
-        // 线性缩放至 targetScale
-        while (elapsed < duration)
+        while (elapsedFirst < durationFirst)
         {
-            Time.timeScale = Mathf.Lerp(initialScale, targetScale, elapsed / duration);
-            elapsed += Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Lerp(initialScale, targetScale, elapsedFirst / durationFirst);
+            elapsedFirst += Time.unscaledDeltaTime;
             yield return null;
         }
         Time.timeScale = targetScale;
 
-        // 等待10秒真实时间
-        yield return new WaitForSecondsRealtime(10f);
+        yield return new WaitForSecondsRealtime(3f);
 
-        // 线性恢复到1
-        elapsed = 0f;
-        while (elapsed < duration)
-        {
-            Time.timeScale = Mathf.Lerp(targetScale, 1f, elapsed / duration);
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
         Time.timeScale = 1f;
     }
 }
