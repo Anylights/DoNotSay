@@ -107,7 +107,7 @@ public class EndManager : AutoNPCManager
             }
             if (Ambient2 != null)
             {
-                Ambient2.volume = Mathf.Lerp(initialVolume, 0f, timer / 10f);
+                Ambient2.volume = Mathf.Lerp(initialVolume2, 0f, timer / 10f);
             }
 
             yield return null;
